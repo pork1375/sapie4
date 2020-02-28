@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.sample.service.impl.SampleMapper">
+
+	<resultMap id="sample" type="egovframework.example.sample.service.SampleVO">
+		<result property="id" column="id"/>
+		<result property="usedate" column="usedate"/>
+		<result property="history" column="history"/>
+		<result property="amount" column="amount"/>
+		<result property="authorization" column="authorization"/>
+		<result property="processing" column="processing"/>
+		<result property="registration" column="registration"/>
+		<result property="processingdate" column="processingdate"/>
+	</resultMap>
+
+	<insert id="insertSample" parameterType="SampleVO">
+
+			INSERT INTO SAMPLE
+				( ID
+				  , NAME
+				  , DESCRIPTION
+				  , USE_YN
+				  , REG_USER
+				  , usedate
+				  , history
+				  , amount
+				  , authorization
+				  , processing
+				  , registration
+				  , processingdate
+				  , fileName
+				  , fileOriName
+				  , fileUrl
+				   )
+			VALUES ( #{id}
+				  , #{name}
+				  , #{description}
+				  , #{useYn}
+				  , #{regUser}
+				  , #{usedate}
+				  , #{history}
+				  , #{amount}
+				  , #{authorization}
+				  , #{processing}
+				  , now()
+				  , now()
+				  , #{fileName}
+				  , #{fileOriName}
+				  , #{fileUrl}
+				   )
+
+	</insert>
+
+	<update id="updateSample">
+
+			UPDATE SAMPLE
+			SET ID=#{id}
+				, NAME=#{name}
+				, DESCRIPTION=#{description}
+				, USE_YN=#{useYn}
+				, usedate=#{usedate}
+				, history=#{history}
+				, amount=#{amount}
+				, authorization=#{authorization}
+				, processing=#{processing}
+				, remarks=#{remarks}
+				  WHERE ID=#{id}
+
+	</update>
+
+	<delete id="deleteSample">
+
+			DELETE FROM SAMPLE
+			WHERE ID=#{id}
+
+	</delete>
+
+	<select id="selectSample" resultMap="sample">
+
+			SELECT
+				*
+			FROM SAMPLE
+			WHERE ID=#{id}
+			
+
+	</select>
+
+<select id="selectSampleList" parameterType="searchVO" resultType="SampleVO">
+
+			select s.ID
+					, s.usedate
+					, s.history
+					, s.amount
+					, s.authorization
+					, s.processing
+					, s.registration
+						from 
+						sample as s
+						join the as t 
+						on s.history = t.history
+						join wall as w
+						on s.processing = w.processing
+			WHERE 1=1
+		        <choose>
+		            <when test="searchCondition == 1">
+						AND	t.history LIKE '%'  '%'
+					</when>
+					<when test="searchCondition == 2">
+						AND	t.history LIKE '%' "식대(야근)" '%'
+					</when>
+					<when test="searchCondition == 3">
+						AND	t.history LIKE '%' "택시비(야근)" '%'
+					</when>
+					<when test="searchCondition == 4">
+						AND	t.history LIKE '%' "택시비(회식)" '%'
+					</when>
+					<when test="searchCondition == 5">
+						AND	t.history LIKE '%' "사무용품구매" '%'
+					</when>
+					<when test="searchCondition == 6">
+						AND	t.history LIKE '%' "교육비" '%'
+					</when>
+					<when test="searchCondition == 7">
+						AND	t.history LIKE '%' "접대비" '%'
+					</when>
+				</choose>
+				<choose>
+		            <when test="searchCondition1 == 1">
+						AND	s.processing LIKE '%'  '%'
+					</when>
+					<when test="searchCondition1 == 2">
+						AND	s.processing LIKE '%' "접수" '%'
+					</when>
+					<when test="searchCondition1 == 3">
+						AND	s.processing LIKE '%' "승인" '%'
+					</when>
+					<when test="searchCondition1 == 4">
+						AND	s.processing LIKE '%' "지급완료" '%'
+					</when>
+					<when test="searchCondition1 == 5">
+						AND	s.processing LIKE '%' "반려" '%'
+					</when>
+				</choose>
+				<choose>
+					<when test="searchCondition2 != null and searchCondition2 != ''">
+						AND DATE_FORMAT(s.usedate, '%Y-%m') LIKE #{ searchCondition2 }
+					</when>
+				</choose>
+			ORDER BY USEDATE DESC
+	</select>
+
+	<select id="selectSampleListTotCnt" parameterType="searchVO" resultType="int">
+
+			SELECT COUNT(*) totcnt
+			FROM SAMPLE
+			WHERE 1=1
+			<if test="searchKeyword != null and searchKeyword != ''">
+		        <choose>
+		            <when test="searchCondition == 1">
+						AND	t.history '%'  '%'
+					</when>
+					<when test="searchCondition == 2">
+						AND	t.history '%' "식대(야근)" '%'
+					</when>
+					<when test="searchCondition == 3">
+						AND	t.history '%' "택시비(야근)" '%'
+					</when>
+					<when test="searchCondition == 4">
+						AND	t.history '%' "택시비(회식)" '%'
+					</when>
+					<when test="searchCondition == 5">
+						AND	t.history '%' "사무용품구매" '%'
+					</when>
+					<when test="searchCondition == 6">
+						AND	t.history '%' "교육비" '%'
+					</when>
+					<when test="searchCondition == 7">
+						AND	t.history '%' "접대비" '%'
+					</when>
+				</choose>
+				<choose>
+		            <when test="searchCondition1 == 1">
+						AND	s.processing '%'  '%'
+					</when>
+					<when test="searchCondition1 == 2">
+						AND	s.processing '%' "접수" '%'
+					</when>
+					<when test="searchCondition1 == 3">
+						AND	s.processing '%' "승인" '%'
+					</when>
+					<when test="searchCondition1 == 4">
+						AND	s.processing '%' "지급완료" '%'
+					</when>
+					<when test="searchCondition1 == 5">
+						AND	s.processing '%' "반려" '%'
+					</when>
+				</choose>
+			</if>
+	</select>
+	<select id="selectexcelList" parameterType="searchVO" resultType="egovframework.example.sample.service.SampleVO">
+
+			select s.ID
+					, s.usedate
+					, s.history
+					, s.amount
+					, s.authorization
+					, s.processing
+					, s.registration
+					, s.remarks
+						from 
+						sample as s
+						join the as t 
+						on s.history = t.history
+						join wall as w
+						on s.processing = w.processing
+			WHERE 1=1
+			ORDER BY USEDATE DESC
+	</select>
+	
+<!-- 데이터 삽입 -->
+    <insert id="insertExcel" parameterType="egovMap">
+        INSERT INTO SAMPLE (
+        				   id
+						 , usedate
+						 , history
+						 , processing
+						)
+						VALUES 
+				      <foreach collection="excelContent" item="item" separator=",">
+				        (
+				            #{id}
+				            , #{item.B}
+				            , #{item.C}
+				            , #{item.D}
+				        )
+			        </foreach>
+    </insert>
+
+
+
+
+</mapper>
